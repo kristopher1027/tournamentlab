@@ -4,13 +4,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .errors import ValidationError
+from .errors import (
+    MAX_NAME, MAX_TEAMS, MIN_NAME, MIN_TEAMS, ValidationError,
+)
 
 SCHEMA_VERSION = 1
-MIN_NAME = 2
-MAX_NAME = 30
-MIN_TEAMS = 4
-MAX_TEAMS = 8
 
 
 def save_state(state: dict, path) -> None:
