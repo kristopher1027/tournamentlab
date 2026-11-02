@@ -1,0 +1,1 @@
+"""TournamentLab — esports league manager."""
