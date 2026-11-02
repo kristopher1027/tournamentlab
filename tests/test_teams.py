@@ -1,7 +1,7 @@
 import unittest
 
 from tournament.errors import ValidationError
-from tournament.teams import new_state, register_team, list_teams
+from tournament.teams import list_teams, new_state, register_team, rename_team
 
 
 class RegisterTeamTests(unittest.TestCase):
@@ -66,6 +66,28 @@ class RegisterTeamTests(unittest.TestCase):
         snapshot = list_teams(self.state)
         snapshot.clear()
         self.assertEqual(len(list_teams(self.state)), 1)
+
+    # --- new tests for rename_team (A2) --------------------------------
+    def test_rename_updates_display_only(self):
+        register_team(self.state, "Old Name")
+        renamed = rename_team(self.state, "TM001", "New Name")
+        self.assertEqual(renamed["id"], "TM001")
+        self.assertEqual(renamed["name"], "New Name")
+
+    def test_rename_rejects_duplicate_of_other_team(self):
+        register_team(self.state, "Alpha")
+        register_team(self.state, "Bravo")
+        with self.assertRaises(ValidationError):
+            rename_team(self.state, "TM001", "  bravo  ")
+
+    def test_rename_rejects_blank(self):
+        register_team(self.state, "Alpha")
+        with self.assertRaises(ValidationError):
+            rename_team(self.state, "TM001", "   ")
+
+    def test_rename_unknown_team_raises(self):
+        with self.assertRaises(ValidationError):
+            rename_team(self.state, "TM999", "Any")
 
 
 if __name__ == "__main__":

@@ -4,12 +4,10 @@ Pure-ish functions: they mutate the passed-in state but perform no I/O.
 """
 from __future__ import annotations
 
-from .errors import ValidationError
+from .errors import (
+    MAX_NAME, MAX_TEAMS, MIN_NAME, MIN_TEAMS, ValidationError,
+)
 
-MIN_NAME = 2
-MAX_NAME = 30
-MIN_TEAMS = 4
-MAX_TEAMS = 8
 
 
 def new_state() -> dict:
@@ -82,3 +80,38 @@ def register_team(state: dict, name: str) -> dict:
 def list_teams(state: dict) -> list[dict]:
     """Return a shallow copy of the teams list (safe to display/iterate)."""
     return list(state.get("teams", []))
+
+def rename_team(state: dict, team_id: str, new_name: str) -> dict:
+    """Rename an existing team.
+
+    Fixtures reference the stable team ID, not the display name, so no
+    fixture needs updating — this is why IDs and names are separate.
+
+    Rules mirror register_team:
+      - new_name trimmed; 2..30 chars
+      - casefolded uniqueness (excluding the team being renamed)
+      - team must exist
+    """
+    if not isinstance(state, dict) or "teams" not in state:
+        raise ValidationError("Invalid league state.")
+
+    team = None
+    for t in state["teams"]:
+        if t["id"] == team_id:
+            team = t
+            break
+    if team is None:
+        raise ValidationError(f"Unknown team id: {team_id!r}.")
+
+    trimmed = _validate_name(new_name)
+    folded = trimmed.casefold()
+    for other in state["teams"]:
+        if other["id"] == team_id:
+            continue
+        if other["name"].casefold() == folded:
+            raise ValidationError(
+                f"Team name '{trimmed}' is already in use by {other['id']}."
+            )
+
+    team["name"] = trimmed
+    return team
