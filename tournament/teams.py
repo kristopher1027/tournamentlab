@@ -4,12 +4,10 @@ Pure-ish functions: they mutate the passed-in state but perform no I/O.
 """
 from __future__ import annotations
 
-from .errors import ValidationError
+from .errors import (
+    MAX_NAME, MAX_TEAMS, MIN_NAME, MIN_TEAMS, ValidationError,
+)
 
-MIN_NAME = 2
-MAX_NAME = 30
-MIN_TEAMS = 4
-MAX_TEAMS = 8
 
 
 def new_state() -> dict:
