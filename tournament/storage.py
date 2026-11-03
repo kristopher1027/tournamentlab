@@ -136,12 +136,23 @@ def _validate_loaded(data) -> None:
             if hs < 0 or as_ < 0:
                 raise ValidationError(f"Played fixture {fid} scores must be >= 0.")
 
-    # --- consistency ---------------------------------------------------
+       # --- consistency ---------------------------------------------------
     if data["fixtures"] and not data["season_generated"]:
         raise ValidationError(
             "Fixtures present but season_generated is False."
         )
-    if data["season_generated"] and data["fixtures"] and n_teams < MIN_TEAMS:
-        raise ValidationError(
-            "Scheduled season requires at least MIN_TEAMS teams."
-        )
+
+    if data["season_generated"]:
+        if n_teams < MIN_TEAMS:
+            raise ValidationError(
+                "Scheduled season requires at least MIN_TEAMS teams."
+            )
+
+        expected_fixtures = n_teams * (n_teams - 1) // 2
+        actual_fixtures = len(data["fixtures"])
+
+        if actual_fixtures != expected_fixtures:
+            raise ValidationError(
+                f"Incomplete round-robin schedule: expected "
+                f"{expected_fixtures} fixtures, found {actual_fixtures}."
+            )

@@ -93,7 +93,30 @@ class StorageTests(unittest.TestCase):
             path.write_text(json.dumps(data))
             with self.assertRaises(ValidationError):
                 load_state(path)
+    def test_reject_incomplete_round_robin_schedule(self):
+        state = _playable_state()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "incomplete.json"
+            data = json.loads(json.dumps(state))
+            data["fixtures"].pop()
+            path.write_text(json.dumps(data))
 
+            with self.assertRaisesRegex(
+                ValidationError, "Incomplete round-robin schedule"
+            ):
+                load_state(path)
 
+    def test_reject_generated_season_without_fixtures(self):
+        state = _playable_state()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "empty_schedule.json"
+            data = json.loads(json.dumps(state))
+            data["fixtures"] = []
+            path.write_text(json.dumps(data))
+
+            with self.assertRaisesRegex(
+                ValidationError, "Incomplete round-robin schedule"
+            ):
+                load_state(path)
 if __name__ == "__main__":
     unittest.main()
