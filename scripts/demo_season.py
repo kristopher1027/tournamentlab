@@ -1,3 +1,8 @@
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 """End-to-end controlled demo — reproducible, prints each step."""
 from pathlib import Path
 import tempfile

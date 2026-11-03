@@ -76,14 +76,25 @@ def _cmd_list_fixtures(state: dict) -> None:
     if not fixtures:
         print("  (no fixtures generated yet)")
         return
+
+    team_names = {
+        team["id"]: team["name"]
+        for team in list_teams(state)
+    }
+
     for fx in fixtures:
+        home_name = team_names.get(fx["home_id"], fx["home_id"])
+        away_name = team_names.get(fx["away_id"], fx["away_id"])
+
         if fx["status"] == "played":
             score = f"{fx['home_score']}-{fx['away_score']}"
         else:
             score = "—"
-        print(f"  {fx['id']}  {fx['home_id']} vs {fx['away_id']}  "
-              f"[{fx['status']}] {score}")
 
+        print(
+            f"  {fx['id']}  {home_name} vs {away_name}  "
+            f"[{fx['status']}] {score}"
+        )
 
 def _cmd_record(state: dict) -> None:
     fixture_id = input("Fixture ID: ").strip()
